@@ -27,6 +27,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -37,6 +38,9 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -58,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<HashMap<String,String>>arrayList = new ArrayList<>();
     HashMap<String,String> hashMap = new HashMap<>();
     RecyclerView recyclerView;
+    ArrayList<SlideModel>imageList = new ArrayList<>();
+    ImageSlider image_slider;
 
 
     @SuppressLint("MissingInflatedId")
@@ -80,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         tvName = findViewById(R.id.tvName);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         recyclerView = findViewById(R.id.recyclerView);
+        image_slider = findViewById(R.id.image_slider);
 
 
 
@@ -145,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        stringRequest();
+        ProductListFast();
 
 
 
@@ -222,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
     //------------ProductListFast code start--------
     private void ProductListFast(){
 
-        String url = "";
+        String url = "https://udoydas.xyz/app/product_item_app/product.json";
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -246,8 +255,13 @@ public class MainActivity extends AppCompatActivity {
                         hashMap.put("product_description",product_description);
                         arrayList.add(hashMap);
 
-
                     }
+
+                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false);
+                    recyclerView.setLayoutManager(linearLayoutManager);
+                    ProductListFastAdapter ProductListFastAdapter = new ProductListFastAdapter();
+                    recyclerView.setAdapter(ProductListFastAdapter);
+
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -258,6 +272,13 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Response")
+                        .setMessage(volleyError.getMessage())
+                        .setPositiveButton("OK",null)
+                        .create()
+                        .show();
 
             }
         });
@@ -306,6 +327,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
+            hashMap = arrayList.get(position);
+            String product_name = hashMap.get("product_name");
+            String product_price = hashMap.get("product_price");
+            String product_image = hashMap.get("product_image");
+            String product_description = hashMap.get("product_description");
+
+            ViewHolder viewHolder = (ViewHolder) holder;
+            viewHolder.product_name.setText(product_name);
+            viewHolder.product_price.setText(product_price);
+
+            Glide.with(MainActivity.this).load(product_image).into(viewHolder.product_image);
+
 
 
 
@@ -321,6 +354,41 @@ public class MainActivity extends AppCompatActivity {
     }
     //------------ProductListFast code finish--------
 
+
+    //--------------------StringRequest start code--------------------
+    private void stringRequest(){
+        String url = "https://udoydas.xyz/app/durga.json";
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+
+                try {
+
+                    for (int x=0; x<response.length();x++){
+                        JSONObject jsonObject = response.getJSONObject(x);
+                        String title = jsonObject.getString("title");
+                        String image_url = jsonObject.getString("image_url");
+                        imageList.add(new SlideModel(image_url, title, ScaleTypes.FIT));
+                    }
+                    image_slider.setImageList(imageList, ScaleTypes.FIT);
+
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        });
+
+        queue.add(jsonArrayRequest);
+    }
+    //--------------------StringRequest finish code--------------------
 
 
 

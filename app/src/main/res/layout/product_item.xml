@@ -20,7 +20,10 @@
             android:scaleType="centerCrop"
             android:src="@drawable/milk_product"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="5dp"
             />
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -34,7 +37,9 @@
                 android:text="তাজা দুধ"
                 android:textColor="#212121"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                />
 
             <TextView
                 android:id="@+id/product_price"
@@ -44,7 +49,9 @@
                 android:text="৳ ৬০ / লিটার"
                 android:textColor="#2E7D32"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                />
 
             <Button
                 android:id="@+id/button"
